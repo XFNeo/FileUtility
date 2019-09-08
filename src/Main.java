@@ -3,9 +3,8 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -19,25 +18,31 @@ public class Main {
         Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
 
         Map<Path, Long> allFiles = fileVisitor.getResult();
-        Map<Path, Long> duplicates = new HashMap<>();
-
+        List<File> duplicatesList = new ArrayList<>();
 
         for (Map.Entry<Path, Long> entry : allFiles.entrySet()) {
             for (Map.Entry<Path, Long> entry1 : allFiles.entrySet()) {
                 if (entry.getKey() != entry1.getKey() &&
                         entry.getKey().getFileName().equals(entry1.getKey().getFileName()) &&
                         entry.getValue().equals(entry1.getValue())
-                ){
-                    duplicates.put(entry.getKey(),entry.getValue());
+                ) {
+                    File newFile = new File(entry.getKey().getFileName().toString(), entry.getValue());
+                    if (duplicatesList.contains(newFile)) {
+                        duplicatesList.get(duplicatesList.indexOf(newFile)).addPath(entry.getKey());
+                    } else {
+                        newFile.addPath(entry.getKey());
+                        duplicatesList.add(newFile);
+                    }
 
-                    System.out.print("fileName=" + entry.getKey().getFileName());
-                    System.out.println(" size=" + entry.getValue());
                 }
             }
         }
 
-
-
-
+        for (File file : duplicatesList) {
+            System.out.println("File Name: " + file.getFileName() +
+                    "\tSize: " + file.getSize() +
+                    "\tCount: " + file.getCount() +
+                    "\tPaths: " + file.getPaths().stream().map(Path::toString).collect(Collectors.joining(", ")));
+        }
     }
 }

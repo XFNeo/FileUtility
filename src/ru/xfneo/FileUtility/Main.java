@@ -28,11 +28,12 @@ public class Main {
             }
             case 2:{
                 Path path = Paths.get(args[0]);
-                int amount = 0;
+                int amount;
                 try {
                     amount = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
                     System.err.println("The second parameter must be a number of files");
+                    return;
                 }
                 MaxSizeFileVisitor fileVisitor = new MaxSizeFileVisitor(amount);
                 Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
@@ -41,11 +42,12 @@ public class Main {
             }
             case 3:{
                 Path path = Paths.get(args[0]);
-                int amount = 0;
+                int amount;
                 try {
                     amount = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
                     System.err.println("The second parameter must be a number of files");
+                    return;
                 }
                 String suffix = args[2];
                 MaxSizeFileVisitor fileVisitor = new MaxSizeFileVisitor(amount,suffix);

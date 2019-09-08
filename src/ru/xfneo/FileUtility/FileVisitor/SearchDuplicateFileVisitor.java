@@ -25,4 +25,9 @@ public class SearchDuplicateFileVisitor extends SimpleFileVisitor<Path> {
 
         return FileVisitResult.CONTINUE;
     }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc){
+        return FileVisitResult.SKIP_SUBTREE;
+    }
 }

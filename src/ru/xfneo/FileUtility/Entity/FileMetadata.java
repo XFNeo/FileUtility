@@ -1,10 +1,18 @@
+package ru.xfneo.FileUtility.Entity;
+
 import java.nio.file.Path;
 import java.util.*;
 
-public class File  {
-    private String fileName;
-    private long size;
+public class FileMetadata {
+    private final String fileName;
+    private final long size;
     private Set<Path> paths = new HashSet<>();
+
+    public FileMetadata(String fileName, long size, Path path) {
+        this.fileName = fileName;
+        this.size = size;
+        this.paths.add(path);
+    }
 
     public void addPath(Path path){
         paths.add(path);
@@ -22,9 +30,9 @@ public class File  {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        File file = (File) o;
-        return size == file.size &&
-                Objects.equals(fileName, file.fileName);
+        FileMetadata fileMetadata = (FileMetadata) o;
+        return size == fileMetadata.size &&
+                Objects.equals(fileName, fileMetadata.fileName);
     }
 
     @Override
@@ -32,24 +40,13 @@ public class File  {
         return Objects.hash(fileName, size);
     }
 
-    public File(String fileName, long size) {
-        this.fileName = fileName;
-        this.size = size;
-    }
-
     public String getFileName() {
         return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     public long getSize() {
         return size;
     }
 
-    public void setSize(long size) {
-        this.size = size;
-    }
+
 }

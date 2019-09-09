@@ -1,7 +1,7 @@
 package ru.xfneo.FileUtility;
 
-import ru.xfneo.FileUtility.FileVisitor.MaxSizeFileVisitor;
-import ru.xfneo.FileUtility.FileVisitor.SearchDuplicateFileVisitor;
+import ru.xfneo.FileUtility.Entity.FileMetadata;
+import ru.xfneo.FileUtility.FileVisitor.SearchUniqueFileVisitor;
 import ru.xfneo.FileUtility.Util.FileMetadataUtil;
 
 import java.io.IOException;
@@ -10,10 +10,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        SearchUniqueFileVisitor fileVisitor = new SearchUniqueFileVisitor();
         switch (args.length){
             case 0:{
                 System.err.println("Please specify params");
@@ -21,9 +23,9 @@ public class Main {
             }
             case 1:{
                 Path path = Paths.get(args[0]);
-                SearchDuplicateFileVisitor fileVisitor = new SearchDuplicateFileVisitor();
                 Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
-                FileMetadataUtil.printFileMetadataList(fileVisitor.getResult());
+                List<FileMetadata> result = FileMetadataUtil.getDuplicateFiles(fileVisitor.getResult());
+                FileMetadataUtil.printFileMetadataList(result);
                 break;
             }
             case 2:{
@@ -35,9 +37,9 @@ public class Main {
                     System.err.println("The second parameter must be a number of files");
                     return;
                 }
-                MaxSizeFileVisitor fileVisitor = new MaxSizeFileVisitor(amount);
                 Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
-                FileMetadataUtil.printFileMetadataList(fileVisitor.getResult());
+                List<FileMetadata> result = FileMetadataUtil.getMaxSizeFiles(fileVisitor.getResult(),amount);
+                FileMetadataUtil.printFileMetadataList(result);
                 break;
             }
             case 3:{
@@ -50,9 +52,9 @@ public class Main {
                     return;
                 }
                 String suffix = args[2];
-                MaxSizeFileVisitor fileVisitor = new MaxSizeFileVisitor(amount,suffix);
                 Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
-                FileMetadataUtil.printFileMetadataList(fileVisitor.getResult());
+                List<FileMetadata> result = FileMetadataUtil.getMaxSizeFilesWithSuffix(fileVisitor.getResult(),amount, suffix);
+                FileMetadataUtil.printFileMetadataList(result);
                 break;
             }
         }

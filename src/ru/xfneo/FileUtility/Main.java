@@ -15,48 +15,51 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        SearchUniqueFileVisitor fileVisitor = new SearchUniqueFileVisitor();
-        switch (args.length){
-            case 0:{
-                System.err.println("Please specify params");
+        switch (args.length) {
+            case 0: {
+                System.err.println("Please specify params." +
+                        "\nParameters:" +
+                        "\nFirst param is path to folder or disk(Example: C:\\Windows\\)" +
+                        "\nSecond param is number of files with maximum size(Example: 10)" +
+                        "\nThird param is file suffix(Example: pdf)");
                 return;
             }
-            case 1:{
-                Path path = Paths.get(args[0]);
-                Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
-                List<FileMetadata> result = FileMetadataUtil.getDuplicateFiles(fileVisitor.getResult());
-                FileMetadataUtil.printFileMetadataList(result);
+            case 1: {
+                walkFileTreeAndPrintDuplicate(args[0]);
                 break;
             }
-            case 2:{
-                Path path = Paths.get(args[0]);
-                int amount;
-                try {
-                    amount = Integer.parseInt(args[1]);
-                } catch (NumberFormatException e) {
-                    System.err.println("The second parameter must be a number of files");
-                    return;
-                }
-                Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
-                List<FileMetadata> result = FileMetadataUtil.getMaxSizeFiles(fileVisitor.getResult(),amount);
-                FileMetadataUtil.printFileMetadataList(result);
+            case 2: {
+                walkFileTreeAndPrintMaxSizeFiles(args[0], args[1], "");
                 break;
             }
-            case 3:{
-                Path path = Paths.get(args[0]);
-                int amount;
-                try {
-                    amount = Integer.parseInt(args[1]);
-                } catch (NumberFormatException e) {
-                    System.err.println("The second parameter must be a number of files");
-                    return;
-                }
-                String suffix = args[2];
-                Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
-                List<FileMetadata> result = FileMetadataUtil.getMaxSizeFilesWithSuffix(fileVisitor.getResult(),amount, suffix);
-                FileMetadataUtil.printFileMetadataList(result);
+            default: {
+                walkFileTreeAndPrintMaxSizeFiles(args[0], args[1], args[2]);
                 break;
             }
         }
     }
+
+    private static void walkFileTreeAndPrintDuplicate(String stringPath) throws IOException {
+        SearchUniqueFileVisitor fileVisitor = new SearchUniqueFileVisitor();
+        Path path = Paths.get(stringPath);
+        Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
+        List<FileMetadata> result = FileMetadataUtil.getDuplicateFiles(fileVisitor.getResult());
+        FileMetadataUtil.printFileMetadataList(result);
+    }
+
+    private static void walkFileTreeAndPrintMaxSizeFiles(String stringPath, String amount, String suffix) throws IOException {
+        SearchUniqueFileVisitor fileVisitor = new SearchUniqueFileVisitor();
+        Path path = Paths.get(stringPath);
+        int amountInt;
+        try {
+            amountInt = Integer.parseInt(amount);
+        } catch (NumberFormatException e) {
+            System.err.println("The second parameter must be a number of files");
+            return;
+        }
+        Files.walkFileTree(path, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, fileVisitor);
+        List<FileMetadata> result = FileMetadataUtil.getMaxSizeFiles(fileVisitor.getResult(), amountInt, suffix);
+        FileMetadataUtil.printFileMetadataList(result);
+    }
+
 }

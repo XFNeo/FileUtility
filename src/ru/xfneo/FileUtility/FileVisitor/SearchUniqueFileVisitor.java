@@ -7,31 +7,32 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SearchUniqueFileVisitor extends SimpleFileVisitor<Path> {
-    private Set<FileMetadata> resultSet = new HashSet<>();
+    private Map<FileMetadata, Set<Path>> map = new HashMap<>();
 
     public List<FileMetadata> getResult() {
-        return new ArrayList<>(resultSet);
+        map.forEach(FileMetadata::setPaths);
+        return new ArrayList<>(map.keySet());
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
-        FileMetadata fileMetadata = new FileMetadata(file.getFileName().toString(), attrs.size(), file);
-        if (resultSet.contains(fileMetadata)){
-            resultSet.stream().filter(fileMetadata::equals).findAny().get().addPath(file);
-        } else {
-            resultSet.add(fileMetadata);
-        }
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+        FileMetadata fileMetadata = new FileMetadata(file.getFileName().toString(), attrs.size());
+        map.merge(fileMetadata,
+                Stream.of(file).collect(Collectors.toSet()),
+                (oldVal, newVal) -> {
+                    oldVal.addAll(newVal);
+                    return oldVal;
+                });
         return FileVisitResult.CONTINUE;
     }
 
     @Override
-    public FileVisitResult visitFileFailed(Path file, IOException exc){
+    public FileVisitResult visitFileFailed(Path file, IOException exc) {
         return FileVisitResult.SKIP_SUBTREE;
     }
 }

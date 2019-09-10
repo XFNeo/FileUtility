@@ -6,16 +6,15 @@ import java.util.*;
 public class FileMetadata {
     private final String fileName;
     private final long size;
-    private Set<Path> paths = new HashSet<>();
+    private Set<Path> paths;
 
-    public FileMetadata(String fileName, long size, Path path) {
+    public FileMetadata(String fileName, long size) {
         this.fileName = fileName;
         this.size = size;
-        this.paths.add(path);
     }
 
-    public void addPath(Path path){
-        paths.add(path);
+    public void setPaths(Set<Path> paths) {
+        this.paths = paths;
     }
 
     public int getCount() {

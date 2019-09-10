@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FileMetadataUtil {
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
+        static {
+            DECIMAL_FORMAT.setRoundingMode(RoundingMode.CEILING);
+        }
 
     public static List<FileMetadata> getDuplicateFiles(List<FileMetadata> allFiles) {
         return allFiles.stream()
@@ -17,14 +21,7 @@ public class FileMetadataUtil {
                 .collect(Collectors.toList());
     }
 
-    public static List<FileMetadata> getMaxSizeFiles(List<FileMetadata> allFiles, int amount) {
-        return allFiles.stream().
-                sorted(Comparator.comparingLong(FileMetadata::getSize).reversed())
-                .limit(amount)
-                .collect(Collectors.toList());
-    }
-
-    public static List<FileMetadata> getMaxSizeFilesWithSuffix(List<FileMetadata> allFiles, int amount, String suffix) {
+    public static List<FileMetadata> getMaxSizeFiles(List<FileMetadata> allFiles, int amount, String suffix) {
         return allFiles.stream().
                 sorted(Comparator.comparingLong(FileMetadata::getSize).reversed())
                 .filter(x -> x.getFileName().endsWith(suffix))
@@ -33,26 +30,26 @@ public class FileMetadataUtil {
     }
 
     public static void printFileMetadataList(List<FileMetadata> list) {
+        String outputFormat = "File Name: %60s\tSize: %10s\tCount: %4d\tPaths: %s";
         for (FileMetadata fileMetadata : list) {
-            System.out.println("File Name: " + fileMetadata.getFileName() +
-                    "\tSize: " + convertSize(fileMetadata.getSize()) +
-                    "\tCount: " + fileMetadata.getCount() +
-                    "\tPaths: " + fileMetadata.getPaths().stream().map(Path::toString).collect(Collectors.joining(", ")));
+            System.out.println(String.format(outputFormat,
+                    fileMetadata.getFileName(),
+                    convertSize(fileMetadata.getSize()),
+                    fileMetadata.getCount(),
+                    fileMetadata.getPaths().stream().map(Path::toString).collect(Collectors.joining(", "))
+            ));
         }
     }
 
-    public static String convertSize(long size) {
-        DecimalFormat df = new DecimalFormat("#.##");
-        df.setRoundingMode(RoundingMode.CEILING);
-
+    private static String convertSize(long size) {
         if (size >= 1024) { //KB
             if (size >= 1024 * 1024) { //MB
                 if (size >= 1024 * 1024 *1024){ //GB
-                    return df.format((double)size/1024/1024/1024) + " GB";
+                    return DECIMAL_FORMAT.format((double)size/1024/1024/1024) + " GB";
                 }
-                return df.format((double)size/1024/1024) + " MB";
+                return DECIMAL_FORMAT.format((double)size/1024/1024) + " MB";
             }
-            return df.format((double)size/1024) + " KB";
+            return DECIMAL_FORMAT.format((double)size/1024) + " KB";
         }
         return size + " B";
     }

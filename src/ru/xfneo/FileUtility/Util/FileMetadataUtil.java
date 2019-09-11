@@ -5,15 +5,20 @@ import ru.xfneo.FileUtility.Entity.FileMetadata;
 import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FileMetadataUtil {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
-        static {
-            DECIMAL_FORMAT.setRoundingMode(RoundingMode.CEILING);
-        }
+
+    static {
+        DECIMAL_FORMAT.setRoundingMode(RoundingMode.CEILING);
+    }
+
+    public static List<FileMetadata> getFileMetadataListWithAddedPaths(Map<FileMetadata, Set<Path>> map) {
+        map.forEach(FileMetadata::setPaths);
+        return new ArrayList<>(map.keySet());
+    }
 
     public static List<FileMetadata> getDuplicateFiles(List<FileMetadata> allFiles) {
         return allFiles.stream()
@@ -44,12 +49,12 @@ public class FileMetadataUtil {
     private static String convertSize(long size) {
         if (size >= 1024) { //KB
             if (size >= 1024 * 1024) { //MB
-                if (size >= 1024 * 1024 *1024){ //GB
-                    return DECIMAL_FORMAT.format((double)size/1024/1024/1024) + " GB";
+                if (size >= 1024 * 1024 * 1024) { //GB
+                    return DECIMAL_FORMAT.format((double) size / 1024 / 1024 / 1024) + " GB";
                 }
-                return DECIMAL_FORMAT.format((double)size/1024/1024) + " MB";
+                return DECIMAL_FORMAT.format((double) size / 1024 / 1024) + " MB";
             }
-            return DECIMAL_FORMAT.format((double)size/1024) + " KB";
+            return DECIMAL_FORMAT.format((double) size / 1024) + " KB";
         }
         return size + " B";
     }

@@ -1,7 +1,7 @@
-package ru.xfneo.FileUtility.FileVisitor;
+package ru.xfneo.fileutility.filevisitor;
 
-import ru.xfneo.FileUtility.Entity.FileMetadata;
-import ru.xfneo.FileUtility.Main;
+import ru.xfneo.fileutility.entity.FileMetadata;
+import ru.xfneo.fileutility.Main;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

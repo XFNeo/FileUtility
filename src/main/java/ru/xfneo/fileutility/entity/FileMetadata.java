@@ -1,4 +1,4 @@
-package ru.xfneo.FileUtility.Entity;
+package ru.xfneo.fileutility.entity;
 
 import java.nio.file.Path;
 import java.util.*;

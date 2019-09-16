@@ -50,13 +50,7 @@ public class SearchService {
         }
 
         List<FileMetadata> allFilesList = FileMetadataUtil.getFileMetadataListWithAddedPaths(FileMetadataUtil.foundFilesMap);
-        List<FileMetadata> result = FileMetadataUtil.getDuplicateFiles(
-                allFilesList,
-                searchOptions.getFilesNumber(),
-                searchOptions.getEndWith(),
-                searchOptions.getStartWith(),
-                searchOptions.isSortByDuplicate()
-        );
+        List<FileMetadata> result = FileMetadataUtil.getProcessedDuplicateFiles(allFilesList, searchOptions);
         FileMetadataUtil.printFileMetadataList(result);
     }
 

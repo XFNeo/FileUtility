@@ -1,6 +1,7 @@
 package ru.xfneo.fileutility.util;
 
 import ru.xfneo.fileutility.entity.FileMetadata;
+import ru.xfneo.fileutility.entity.SearchOptions;
 
 import java.math.RoundingMode;
 import java.nio.file.Path;
@@ -34,17 +35,16 @@ public class FileMetadataUtil {
      * Limits output by filesNumber param.
      *
      * @param allFilesList    list of FileMetadata objects
-     * @param filesNumber     number of FileMetadata objects to return
-     * @param suffix          filter, file name should start with it
-     * @param prefix          filter, file name should end with it
-     * @param sortByDuplicate if true list will be sorted by number of duplicates otherwise sorted by file size
+     * @param options         set of parameters for filter, sort and limit elements of the list
      * @return processed list of FileMetadata
      */
-    public static List<FileMetadata> getDuplicateFiles(List<FileMetadata> allFilesList, int filesNumber, String suffix, String prefix, boolean sortByDuplicate) {
+    public static List<FileMetadata> getProcessedDuplicateFiles(List<FileMetadata> allFilesList, SearchOptions options) {
         return allFilesList.stream().
-                sorted(sortByDuplicate ? Comparator.comparingInt(FileMetadata::getCount).reversed() : Comparator.comparingLong(FileMetadata::getSize).reversed())
-                .filter(f -> f.getFileName().endsWith(suffix) && f.getFileName().startsWith(prefix) && f.getCount() > 1)
-                .limit(filesNumber)
+                sorted(options.isSortByDuplicates() ? Comparator.comparingInt(FileMetadata::getCount).reversed() : Comparator.comparingLong(FileMetadata::getSize).reversed())
+                .filter(f -> f.getFileName().toLowerCase().endsWith(options.getEndWith().toLowerCase()) &&
+                        f.getFileName().toLowerCase().startsWith(options.getStartWith().toLowerCase()) &&
+                        f.getCount() > 1)
+                .limit(options.getFilesNumber())
                 .collect(Collectors.toList());
     }
 

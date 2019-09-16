@@ -5,14 +5,14 @@ public class SearchOptions {
     private final String[] paths;
     private final String endWith;
     private final String startWith;
-    private final boolean sortByDuplicate;
+    private final boolean sortByDuplicates;
 
-    public SearchOptions(int filesNumber, String[] paths, String endWith, String startWith, boolean sortByDuplicate) {
+    public SearchOptions(int filesNumber, String[] paths, String endWith, String startWith, boolean sortByDuplicates) {
         this.filesNumber = filesNumber;
         this.paths = paths;
         this.endWith = endWith;
         this.startWith = startWith;
-        this.sortByDuplicate = sortByDuplicate;
+        this.sortByDuplicates = sortByDuplicates;
     }
 
     public int getFilesNumber() {
@@ -31,7 +31,7 @@ public class SearchOptions {
         return startWith;
     }
 
-    public boolean isSortByDuplicate() {
-        return sortByDuplicate;
+    public boolean isSortByDuplicates() {
+        return sortByDuplicates;
     }
 }

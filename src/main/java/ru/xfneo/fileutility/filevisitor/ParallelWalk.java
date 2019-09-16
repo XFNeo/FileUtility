@@ -1,7 +1,10 @@
 package ru.xfneo.fileutility.filevisitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.xfneo.fileutility.entity.FileMetadata;
-import ru.xfneo.fileutility.Main;
+import ru.xfneo.fileutility.service.SearchService;
+import ru.xfneo.fileutility.util.FileMetadataUtil;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ParallelWalk extends RecursiveAction {
+    private static final Logger logger = LoggerFactory.getLogger(ParallelWalk.class);
     private final Path path;
 
     public ParallelWalk(Path path) {
@@ -30,7 +34,7 @@ public class ParallelWalk extends RecursiveAction {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     FileMetadata fileMetadata = new FileMetadata(file.getFileName().toString(), attrs.size());
-                    Main.allFilesMap.merge(fileMetadata,
+                    FileMetadataUtil.foundFilesMap.merge(fileMetadata,
                             Stream.of(file).collect(Collectors.toSet()),
                             (oldVal, newVal) -> {
                                 oldVal.addAll(newVal);
@@ -41,23 +45,24 @@ public class ParallelWalk extends RecursiveAction {
 
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    if (!dir.equals(ParallelWalk.this.path)) {
+                    if (dir.equals(ParallelWalk.this.path)) {
+                        return FileVisitResult.CONTINUE;
+                    } else {
                         ParallelWalk w = new ParallelWalk(dir);
                         w.fork();
                         walks.add(w);
                         return FileVisitResult.SKIP_SUBTREE;
-                    } else {
-                        return FileVisitResult.CONTINUE;
                     }
                 }
 
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    logger.warn("Problem with access to {}", file);
                     return FileVisitResult.CONTINUE;
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("walkFileTree path {}", path ,e);
         }
 
         for (ParallelWalk walk : walks) {

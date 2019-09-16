@@ -18,3 +18,5 @@ Written to gain experience with:
 - java.nio
 - java.concurrent
 - Apache Commons CLI
+- Apache Maven
+- slf4j and log4j

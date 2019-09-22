@@ -1,8 +1,13 @@
 package ru.xfneo.fileutility.entity;
 
-import lombok.Value;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 
-@Value
+@Getter
+@AllArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class SearchOptions {
     int filesNumber;
     String[] paths;

@@ -130,45 +130,22 @@ public class FileMetadataUtilTest {
                 .endsWith("end");
     }
 
-
-
     @Test
-    public void printFileMetadataListTest_B() {
+    public void printFileMetadataListTest() {
         List<FileMetadata> allFoundFilesWithPathsList = prepareFileMetadataList();
-        SearchOptions options = new SearchOptions(Integer.MAX_VALUE, null, "", "file1", true);
-        List<FileMetadata> list = FileMetadataUtil.getProcessedDuplicateFiles(allFoundFilesWithPathsList, options);
-        String expectedOutput = "File Name:                                                        file1\tSize:      100 B\tCount:    3\tPaths: C:\\file1, E:\\file1, D:\\file1" + System.lineSeparator();
-        FileMetadataUtil.printFileMetadataList(list);
-        assertThat(outContent.toString()).isNotNull().isEqualTo(expectedOutput);
-    }
-
-    @Test
-    public void printFileMetadataListTest_KB() {
-        List<FileMetadata> allFoundFilesWithPathsList = prepareFileMetadataList();
-        SearchOptions options = new SearchOptions(Integer.MAX_VALUE, null, "", "file2_end", true);
-        List<FileMetadata> list = FileMetadataUtil.getProcessedDuplicateFiles(allFoundFilesWithPathsList, options);
-        String expectedOutput = "File Name:                                                    file2_end\tSize:   24,42 KB\tCount:    3\tPaths: C:\\file2, D:\\file2, E:\\file2" + System.lineSeparator();
-        FileMetadataUtil.printFileMetadataList(list);
-        assertThat(outContent.toString()).isNotNull().isEqualTo(expectedOutput);
-    }
-
-    @Test
-    public void printFileMetadataListTest_MB() {
-        List<FileMetadata> allFoundFilesWithPathsList = prepareFileMetadataList();
-        SearchOptions options = new SearchOptions(Integer.MAX_VALUE, null, "", "start_file3", true);
-        List<FileMetadata> list = FileMetadataUtil.getProcessedDuplicateFiles(allFoundFilesWithPathsList, options);
-        String expectedOutput = "File Name:                                                  start_file3\tSize:    1,65 MB\tCount:    2\tPaths: C:\\file3, D:\\file1" + System.lineSeparator();
-        FileMetadataUtil.printFileMetadataList(list);
-        assertThat(outContent.toString()).isNotNull().isEqualTo(expectedOutput);
-    }
-
-    @Test
-    public void printFileMetadataListTest_GB() {
-        List<FileMetadata> allFoundFilesWithPathsList = prepareFileMetadataList();
-        SearchOptions options = new SearchOptions(Integer.MAX_VALUE, null, "", "file4", true);
-        List<FileMetadata> list = FileMetadataUtil.getProcessedDuplicateFiles(allFoundFilesWithPathsList, options);
-        String expectedOutput = "File Name:                                                        file4\tSize:    8,85 GB\tCount:    2\tPaths: C:\\file4, D:\\file4" + System.lineSeparator();
-        FileMetadataUtil.printFileMetadataList(list);
-        assertThat(outContent.toString()).isNotNull().isEqualTo(expectedOutput);
+        String[] inputFileName = new String[]{"file1", "file2_end", "start_file3", "file4"};
+        String[] expectedOutput = new String[]{
+                "File Name:                                                        file1\tSize:      100 B\tCount:    3\tPaths: C:\\file1, E:\\file1, D:\\file1" + System.lineSeparator(),
+                "File Name:                                                    file2_end\tSize:   24,42 KB\tCount:    3\tPaths: C:\\file2, D:\\file2, E:\\file2" + System.lineSeparator(),
+                "File Name:                                                  start_file3\tSize:    1,65 MB\tCount:    2\tPaths: C:\\file3, D:\\file1" + System.lineSeparator(),
+                "File Name:                                                        file4\tSize:    8,85 GB\tCount:    2\tPaths: C:\\file4, D:\\file4" + System.lineSeparator()
+        };
+        for (int i = 0; i < inputFileName.length; i++) {
+            SearchOptions options = new SearchOptions(Integer.MAX_VALUE, null, "", inputFileName[i], true);
+            List<FileMetadata> list = FileMetadataUtil.getProcessedDuplicateFiles(allFoundFilesWithPathsList, options);
+            FileMetadataUtil.printFileMetadataList(list);
+            assertThat(outContent.toString()).isNotNull().isEqualTo(expectedOutput[i]);
+            outContent.reset();
+        }
     }
 }

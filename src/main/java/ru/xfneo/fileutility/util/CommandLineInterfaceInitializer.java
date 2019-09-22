@@ -25,12 +25,12 @@ public class CommandLineInterfaceInitializer {
             formatter.printHelp("FileUtility", options);
             System.exit(1);
         }
-        int filesNumber = 0;
+        int filesNumber;
         try {
             filesNumber = Integer.parseInt(commandLine.getOptionValue('n', String.valueOf(Integer.MAX_VALUE)));
         } catch (NumberFormatException e) {
-            log.error("Cant parseInt from option -n", e);
-            System.exit(1);
+            log.warn("Cant parseInt from option -n", e);
+            filesNumber = Integer.MAX_VALUE;
         }
         String[] paths = commandLine.getOptionValues('p');
         String endWith = commandLine.getOptionValue('e', "");

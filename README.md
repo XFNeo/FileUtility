@@ -22,3 +22,4 @@ Written to gain experience with:
 - slf4j and log4j
 - Project Lombok
 - JUnit and AssertJ
+- Mockito

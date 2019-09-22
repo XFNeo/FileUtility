@@ -20,3 +20,5 @@ Written to gain experience with:
 - Apache Commons CLI
 - Apache Maven
 - slf4j and log4j
+- Project Lombok
+- JUnit and AssertJ

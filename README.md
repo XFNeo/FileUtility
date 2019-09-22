@@ -10,7 +10,7 @@ Use for search duplicate files on your PC.
     -p,--path <arg>        Required parameter. The path or paths to the
                            folder or disk drive where to look for duplicate
                            files. Use space as separator. If path contains
-                           spaces surround it with double quotes. Example: -p
+                           spaces surround it with double quotes. Example:
                            "C:\Program Files" D:\
     -s,--startWith <arg>   Start of file name to filter output. Example: temp
 

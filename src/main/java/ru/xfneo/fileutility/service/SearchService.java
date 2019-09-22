@@ -1,7 +1,8 @@
 package ru.xfneo.fileutility.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.sun.istack.internal.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.xfneo.fileutility.entity.FileMetadata;
 import ru.xfneo.fileutility.entity.SearchOptions;
 import ru.xfneo.fileutility.filevisitor.ParallelWalk;
@@ -14,29 +15,27 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
+@RequiredArgsConstructor
 public class SearchService {
-    private static final Logger logger = LoggerFactory.getLogger(SearchService.class);
     private static final int NUMBER_OF_THREADS = Runtime.getRuntime().availableProcessors() * 2;
-    private SearchOptions searchOptions;
-
-    public SearchService(SearchOptions searchOptions) {
-        this.searchOptions = searchOptions;
-    }
+    private static final int TIMEOUT = 10;
+    private final SearchOptions searchOptions;
 
     public void searchAndPrintResult() {
         List<Thread> threadsForPaths = new ArrayList<>();
         for (String stringPath : searchOptions.getPaths()) {
             threadsForPaths.add(new Thread(() -> {
-                ParallelWalk w;
+                ParallelWalk parallelWalk;
                 try {
-                    w = new ParallelWalk(Paths.get(stringPath).toRealPath());
+                    parallelWalk = new ParallelWalk(Paths.get(stringPath).toRealPath());
                 } catch (IOException e) {
-                    logger.error("Incorrect path {}", stringPath);
+                    log.error("Incorrect path {}", stringPath);
                     return;
                 }
-                ForkJoinPool p = new ForkJoinPool(NUMBER_OF_THREADS);
-                p.invoke(w);
-                p.awaitQuiescence(10, TimeUnit.MINUTES);
+                ForkJoinPool forkJoinPool = new ForkJoinPool(NUMBER_OF_THREADS);
+                forkJoinPool.invoke(parallelWalk);
+                forkJoinPool.awaitQuiescence(TIMEOUT, TimeUnit.MINUTES);
             }));
         }
         threadsForPaths.forEach(Thread::start);
@@ -45,20 +44,12 @@ public class SearchService {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                logger.error("ThreadsForPaths thread.join() error", e);
+                log.error("ThreadsForPaths thread.join() error", e);
             }
         }
 
         List<FileMetadata> allFilesList = FileMetadataUtil.getFileMetadataListWithAddedPaths(FileMetadataUtil.foundFilesMap);
         List<FileMetadata> result = FileMetadataUtil.getProcessedDuplicateFiles(allFilesList, searchOptions);
         FileMetadataUtil.printFileMetadataList(result);
-    }
-
-    public SearchOptions getSearchOptions() {
-        return searchOptions;
-    }
-
-    public void setSearchOptions(SearchOptions searchOptions) {
-        this.searchOptions = searchOptions;
     }
 }

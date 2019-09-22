@@ -15,5 +15,4 @@ public class Main {
         long stop = System.currentTimeMillis();
         System.out.printf("Search took %d ms", stop - start);
     }
-
 }

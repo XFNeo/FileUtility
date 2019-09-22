@@ -1,9 +1,10 @@
 package ru.xfneo.fileutility.filevisitor;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.xfneo.fileutility.entity.FileMetadata;
-import ru.xfneo.fileutility.service.SearchService;
 import ru.xfneo.fileutility.util.FileMetadataUtil;
 
 import java.io.IOException;
@@ -17,14 +18,10 @@ import java.util.List;
 import java.util.concurrent.RecursiveAction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+@Slf4j
+@RequiredArgsConstructor
 public class ParallelWalk extends RecursiveAction {
-    private static final Logger logger = LoggerFactory.getLogger(ParallelWalk.class);
     private final Path path;
-
-    public ParallelWalk(Path path) {
-        this.path = path;
-    }
 
     @Override
     protected void compute() {
@@ -45,24 +42,24 @@ public class ParallelWalk extends RecursiveAction {
 
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    if (dir.equals(ParallelWalk.this.path)) {
+                    if (ParallelWalk.this.path.equals(dir)) {
                         return FileVisitResult.CONTINUE;
                     } else {
-                        ParallelWalk w = new ParallelWalk(dir);
-                        w.fork();
-                        walks.add(w);
+                        ParallelWalk newWalk = new ParallelWalk(dir);
+                        newWalk.fork();
+                        walks.add(newWalk);
                         return FileVisitResult.SKIP_SUBTREE;
                     }
                 }
 
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                    logger.warn("Problem with access to {}", file);
+                    log.warn("Problem with access to {}", file);
                     return FileVisitResult.CONTINUE;
                 }
             });
         } catch (IOException e) {
-            logger.error("walkFileTree path {}", path ,e);
+            log.error("walkFileTree path {}", path ,e);
         }
 
         for (ParallelWalk walk : walks) {

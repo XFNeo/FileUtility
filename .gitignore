@@ -3,3 +3,4 @@
 /.idea/
 FileUtility.iml
 /target/
+/app*.log*

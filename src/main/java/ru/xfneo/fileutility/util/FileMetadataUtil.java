@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class FileMetadataUtil {
-    public static final Map<FileMetadata, Set<Path>> foundFilesMap = new ConcurrentHashMap<>();
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 
     static {

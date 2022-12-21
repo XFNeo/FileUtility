@@ -13,8 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.RecursiveAction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +21,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ParallelWalk extends RecursiveAction {
     private final Path path;
+    private final Map<FileMetadata, Set<Path>> foundFilesMap;
 
     @Override
     protected void compute() {
@@ -31,12 +31,7 @@ public class ParallelWalk extends RecursiveAction {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     FileMetadata fileMetadata = new FileMetadata(file.getFileName().toString(), attrs.size());
-                    FileMetadataUtil.foundFilesMap.merge(fileMetadata,
-                            Stream.of(file).collect(Collectors.toSet()),
-                            (oldVal, newVal) -> {
-                                oldVal.addAll(newVal);
-                                return oldVal;
-                            });
+                    foundFilesMap.computeIfAbsent(fileMetadata, k -> new TreeSet<>()).add(path);
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -45,7 +40,7 @@ public class ParallelWalk extends RecursiveAction {
                     if (ParallelWalk.this.path.equals(dir)) {
                         return FileVisitResult.CONTINUE;
                     } else {
-                        ParallelWalk newWalk = new ParallelWalk(dir);
+                        ParallelWalk newWalk = new ParallelWalk(dir, foundFilesMap);
                         newWalk.fork();
                         walks.add(newWalk);
                         return FileVisitResult.SKIP_SUBTREE;

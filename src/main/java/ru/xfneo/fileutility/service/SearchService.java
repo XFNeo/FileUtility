@@ -1,6 +1,7 @@
 package ru.xfneo.fileutility.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import ru.xfneo.fileutility.entity.FileMetadata;
 import ru.xfneo.fileutility.entity.SearchOptions;
@@ -8,9 +9,14 @@ import ru.xfneo.fileutility.filevisitor.ParallelWalk;
 import ru.xfneo.fileutility.util.FileMetadataUtil;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
@@ -21,33 +27,18 @@ public class SearchService {
     private static final int TIMEOUT = 10;
     private final SearchOptions searchOptions;
 
+    @SneakyThrows
     public void searchAndPrintResult() {
-        List<Thread> threadsForPaths = new ArrayList<>();
-        for (String stringPath : searchOptions.getPaths()) {
-            threadsForPaths.add(new Thread(() -> {
-                ParallelWalk parallelWalk;
-                try {
-                    parallelWalk = new ParallelWalk(Paths.get(stringPath).toRealPath());
-                } catch (IOException e) {
-                    log.error("Incorrect path {}", stringPath);
-                    return;
-                }
-                ForkJoinPool forkJoinPool = new ForkJoinPool(NUMBER_OF_THREADS);
-                forkJoinPool.invoke(parallelWalk);
-                forkJoinPool.awaitQuiescence(TIMEOUT, TimeUnit.MINUTES);
-            }));
-        }
-        threadsForPaths.forEach(Thread::start);
+        var collector = new ConcurrentHashMap<FileMetadata, Set<Path>>();
 
-        for (Thread thread : threadsForPaths) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                log.error("ThreadsForPaths thread.join() error", e);
-            }
-        }
+        ForkJoinPool forkJoinPool = new ForkJoinPool(NUMBER_OF_THREADS);
+        Arrays.stream(searchOptions.getPaths())
+                .map(Paths::get)
+                .filter(Files::isDirectory)
+                .forEach(path -> forkJoinPool.invoke(new ParallelWalk(path, collector)));
+        forkJoinPool.awaitQuiescence(TIMEOUT, TimeUnit.MINUTES);
 
-        List<FileMetadata> allFilesList = FileMetadataUtil.getFileMetadataListWithAddedPaths(FileMetadataUtil.foundFilesMap);
+        List<FileMetadata> allFilesList = FileMetadataUtil.getFileMetadataListWithAddedPaths(collector);
         List<FileMetadata> result = FileMetadataUtil.getProcessedDuplicateFiles(allFilesList, searchOptions);
         FileMetadataUtil.printFileMetadataList(result);
     }

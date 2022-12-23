@@ -20,11 +20,11 @@ public class CommandLineInterfaceInitializerTest {
         SearchOptions searchOptions = initializer.init(args);
 
         assertThat(searchOptions).isNotNull();
-        assertThat(searchOptions.getPaths()).isNotEmpty().hasSize(2).containsExactly("D:\\", "C:\\Program Files");
-        assertThat(searchOptions).extracting(SearchOptions::getFilesNumber).isEqualTo(10);
-        assertThat(searchOptions).extracting(SearchOptions::getEndWith).isEqualTo("end");
-        assertThat(searchOptions).extracting(SearchOptions::getStartWith).isEqualTo("start");
-        assertThat(searchOptions).extracting(SearchOptions::isSortByDuplicates).isEqualTo(true);
+        assertThat(searchOptions.paths()).isNotEmpty().hasSize(2).containsExactly("D:\\", "C:\\Program Files");
+        assertThat(searchOptions).extracting(SearchOptions::filesNumber).isEqualTo(10);
+        assertThat(searchOptions).extracting(SearchOptions::endWith).isEqualTo("end");
+        assertThat(searchOptions).extracting(SearchOptions::startWith).isEqualTo("start");
+        assertThat(searchOptions).extracting(SearchOptions::sortByDuplicates).isEqualTo(true);
     }
 
     @Test
@@ -35,6 +35,6 @@ public class CommandLineInterfaceInitializerTest {
         };
         CommandLineInterfaceInitializer initializer = new CommandLineInterfaceInitializer();
         SearchOptions searchOptions = initializer.init(args);
-        assertThat(searchOptions).extracting(SearchOptions::getFilesNumber).isEqualTo(Integer.MAX_VALUE);
+        assertThat(searchOptions).extracting(SearchOptions::filesNumber).isEqualTo(Integer.MAX_VALUE);
     }
 }

@@ -12,11 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileMetadataUtilTest {
-    private Map<FileMetadata, Set<Path>> foundFilesMap = new ConcurrentHashMap<>();
+    private final Map<FileMetadata, Set<Path>> foundFilesMap = new ConcurrentHashMap<>();
     private FileMetadata fileMetadata1;
     private FileMetadata fileMetadata2;
     private FileMetadata fileMetadata3;
@@ -34,11 +35,11 @@ public class FileMetadataUtilTest {
 
     @Before
     public void setUp() {
-        fileMetadata1 = new FileMetadata("file1", 100);
-        fileMetadata2 = new FileMetadata("file2_end", 25000);
-        fileMetadata3 = new FileMetadata("start_file3", 1720400);
-        fileMetadata4 = new FileMetadata("file4", 9500000500L);
-        fileMetadata5 = new FileMetadata("file5", 481800);
+        fileMetadata1 = new FileMetadata(Path.of("file1"), 100);
+        fileMetadata2 = new FileMetadata(Path.of("file2_end"), 25000);
+        fileMetadata3 = new FileMetadata(Path.of("start_file3"), 1720400);
+        fileMetadata4 = new FileMetadata(Path.of("file4"), 9500000500L);
+        fileMetadata5 = new FileMetadata(Path.of("file5"), 481800);
         file1Paths = new HashSet<>(Arrays.asList(Paths.get("C:\\file1"), Paths.get("D:\\file1"), Paths.get("E:\\file1")));
         file2Paths = new HashSet<>(Arrays.asList(Paths.get("C:\\file2"), Paths.get("D:\\file2"), Paths.get("E:\\file2")));
         file3Paths = new HashSet<>(Arrays.asList(Paths.get("C:\\file3"), Paths.get("D:\\file1")));
@@ -59,7 +60,6 @@ public class FileMetadataUtilTest {
         System.setOut(originalOut);
         System.setErr(originalErr);
     }
-
     private List<FileMetadata> prepareFileMetadataList() {
         foundFilesMap.forEach(FileMetadata::setPaths);
         return new ArrayList<>(foundFilesMap.keySet());
@@ -112,7 +112,7 @@ public class FileMetadataUtilTest {
         assertThat(actualList)
                 .isNotNull()
                 .first()
-                .extracting(FileMetadata::getFileName)
+                .extracting(FileMetadata::fileName)
                 .asString()
                 .startsWith("start");
     }
@@ -125,7 +125,7 @@ public class FileMetadataUtilTest {
         assertThat(actualList)
                 .isNotNull()
                 .first()
-                .extracting(FileMetadata::getFileName)
+                .extracting(FileMetadata::fileName)
                 .asString()
                 .endsWith("end");
     }

@@ -8,6 +8,7 @@ import ru.xfneo.fileutility.entity.SearchOptions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,11 +33,11 @@ public class SearchServiceTest {
     @Test
     public void searchAndPrintResult() {
         SearchOptions searchOptions = Mockito.mock(SearchOptions.class);
-        Mockito.when(searchOptions.getPaths()).thenReturn(new String[]{"src/test/resources/test_search_directory/"});
-        Mockito.when(searchOptions.getEndWith()).thenReturn("");
-        Mockito.when(searchOptions.getStartWith()).thenReturn("");
-        Mockito.when(searchOptions.getFilesNumber()).thenReturn(5);
-        Mockito.when(searchOptions.isSortByDuplicates()).thenReturn(true);
+        Mockito.when(searchOptions.paths()).thenReturn(new String[]{"src/test/resources/test_search_directory/"});
+        Mockito.when(searchOptions.endWith()).thenReturn(Optional.empty());
+        Mockito.when(searchOptions.startWith()).thenReturn(Optional.empty());
+        Mockito.when(searchOptions.filesNumber()).thenReturn(5);
+        Mockito.when(searchOptions.sortByDuplicates()).thenReturn(true);
 
         SearchService searchService = new SearchService(searchOptions);
         searchService.searchAndPrintResult();
@@ -44,11 +45,11 @@ public class SearchServiceTest {
         String expectedOutput1 = "test2.txt\tSize:       10 B\tCount:    3";
         String expectedOutput2 = "test.txt\tSize:        9 B\tCount:    3";
 
-        Mockito.verify(searchOptions, Mockito.times(1)).getPaths();
-        Mockito.verify(searchOptions, Mockito.times(2)).getEndWith();
-        Mockito.verify(searchOptions, Mockito.times(2)).getStartWith();
-        Mockito.verify(searchOptions, Mockito.times(1)).getFilesNumber();
-        Mockito.verify(searchOptions, Mockito.times(1)).isSortByDuplicates();
+        Mockito.verify(searchOptions, Mockito.times(1)).paths();
+        Mockito.verify(searchOptions, Mockito.times(2)).endWith();
+        Mockito.verify(searchOptions, Mockito.times(2)).startWith();
+        Mockito.verify(searchOptions, Mockito.times(1)).filesNumber();
+        Mockito.verify(searchOptions, Mockito.times(1)).sortByDuplicates();
         assertThat(outContent.toString()).isNotNull().contains(expectedOutput1).contains(expectedOutput2);
     }
 }

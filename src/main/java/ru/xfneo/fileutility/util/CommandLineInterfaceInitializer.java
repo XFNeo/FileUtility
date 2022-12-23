@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 import ru.xfneo.fileutility.entity.SearchOptions;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 public class CommandLineInterfaceInitializer {
@@ -33,11 +35,13 @@ public class CommandLineInterfaceInitializer {
             filesNumber = Integer.MAX_VALUE;
         }
         String[] paths = commandLine.getOptionValues('p');
+
+        Function<String, Optional<String>> conv = (String p) -> p.length() == 0 ? Optional.empty() : Optional.of(p);
         String endWith = commandLine.getOptionValue('e', "");
         String startWith = commandLine.getOptionValue('s', "");
         boolean sortByDuplicate = commandLine.hasOption('d');
 
-        return new SearchOptions(filesNumber,paths,endWith,startWith,sortByDuplicate);
+        return new SearchOptions(filesNumber, paths, conv.apply(endWith), conv.apply(startWith), sortByDuplicate);
     }
 
     private void setupOptions(){
